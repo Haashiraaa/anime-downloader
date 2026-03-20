@@ -1,0 +1,4 @@
+requests
+beautifulsoup4
+lxml
+git+https://github.com/Haashiraaa/haashi-analytics-toolkit.git
