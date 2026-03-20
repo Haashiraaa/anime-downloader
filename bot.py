@@ -145,40 +145,31 @@ def main(logger: Optional[Logger] = None) -> None:
     """Start the bot"""
 
     logger = logger or Logger(logging.INFO)
-    try:
-        logger.info("🤖 Starting Anime Downloader Bot...")
-        assert BOT_TOKEN is not None
-        logger.info(f"📡 Token: {BOT_TOKEN[:10]}...")
 
-        # Create application
-        app = Application.builder().token(BOT_TOKEN).build()
+    logger.info("🤖 Starting Anime Downloader Bot...")
+    assert BOT_TOKEN is not None
+    logger.info(f"📡 Token: {BOT_TOKEN[:10]}...")
 
-        # Add command handlers
-        app.add_handler(CommandHandler("start", start))
-        app.add_handler(CommandHandler("help", help_command))
-        app.add_handler(CommandHandler("download", download_command))
+    # Create application
+    app = Application.builder().token(BOT_TOKEN).build()
 
-        # Handle URLs sent directly
-        app.add_handler(MessageHandler(
-            filters.TEXT & ~filters.COMMAND, url_handler))
+    # Add command handlers
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("help", help_command))
+    app.add_handler(CommandHandler("download", download_command))
 
-        # Error handler
-        app.add_error_handler(error_handler)  # type: ignore
+    # Handle URLs sent directly
+    app.add_handler(MessageHandler(
+        filters.TEXT & ~filters.COMMAND, url_handler))
 
-        logger.info("✅ Bot is running!")
-        logger.info("Press Ctrl+C to stop")
+    # Error handler
+    app.add_error_handler(error_handler)  # type: ignore
 
-        # Start polling for messages
-        app.run_polling(allowed_updates=Update.ALL_TYPES)
+    logger.info("✅ Bot is running!")
+    logger.info("Press Ctrl+C to stop")
 
-    except KeyboardInterrupt:
-        logger.info("Process interrupted by user")
-        sys.exit(0)
-
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        logger.error(exception=e, save_to_json=True)
-        sys.exit(1)
+    # Start polling for messages
+    app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
 if __name__ == "__main__":
