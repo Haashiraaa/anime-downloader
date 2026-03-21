@@ -1,5 +1,4 @@
 requests
 beautifulsoup4
 lxml
-python-telegram-bot
 git+https://github.com/Haashiraaa/haashi-analytics-toolkit.git
