@@ -27,7 +27,7 @@ pip install -r requirements.txt
 ## Usage
 
 ```bash
-python3 -m anime_dl --url "https://animeheaven.me/anime.php?9rp26"
+python3 -m anime_dl --urls "https://animeheaven.me/anime.php?9rp26"
 ```
 
 ### Options
@@ -86,6 +86,7 @@ Downloads are saved to `anime_downloads/` in the project root, organized by anim
 - `requests` — HTTP requests
 - `beautifulsoup4` — HTML parsing
 - `lxml` — HTML parser backend
+- `tqdm` — download progress bars
 - `haashi-pkg` — Custom utility library (logger, file handler, screen utilities)
 
 ---
@@ -93,6 +94,8 @@ Downloads are saved to `anime_downloads/` in the project root, organized by anim
 ## Notes
 
 - aria2c is used for downloads when available, with a requests fallback if not installed
-- Failed network calls are retried up to 3 times with exponential backoff
-- Downloads run in parallel using a thread pool (default 5 workers)
+- When aria2c is not installed, downloads run sequentially with a progress bar
+- When aria2c is installed, downloads run in parallel using a thread pool (default 5 workers)
+- Failed network calls are retried up to 10 times with exponential backoff
+- Partial downloads are resumed automatically on retry rather than restarting from scratch
 - Anime titles are sanitized before being used as folder names to ensure cross-platform compatibility
