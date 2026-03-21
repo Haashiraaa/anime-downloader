@@ -2,7 +2,7 @@
 
 import time
 from typing import Callable, Optional, Any
-from haashi_pkg.utility import Logger
+from haashi_pkg.utility import Logger, ScreenUtil as su
 
 
 def retry(
@@ -36,9 +36,11 @@ def retry(
                 raise
             # Exponential backoff: 2s, 4s, 8s...
             sleep_time = delay * (backoff ** (attempt - 1))
+            su.space()
             if logger:
                 logger.warning(
                     f"Attempt {attempt}/{retries} failed: {e}. "
                     f"Retrying in {sleep_time}s..."
                 )
             time.sleep(sleep_time)
+

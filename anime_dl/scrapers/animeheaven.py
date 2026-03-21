@@ -8,7 +8,8 @@ import sys
 import re
 from bs4 import BeautifulSoup
 from typing import List, Dict, Any, Optional
-from haashi_pkg.utility import Logger, ScreenUtil as su
+from haashi_pkg.utility import Logger
+from anime_dl import headers
 
 
 class AnimeHeavenScraper:
@@ -26,10 +27,7 @@ class AnimeHeavenScraper:
 
         self.logger = logger or Logger(logging.INFO)
 
-        self.headers = {
-            "User-Agent": "Mozilla/5.0",
-            "Referer": self.url3
-        }
+        self.headers = headers
         self.episodes: List[Dict[str, Any]] = []
         self.folder_name: Optional[str] = None
         self.name: str = "AnimeHeaven"
@@ -41,12 +39,12 @@ class AnimeHeavenScraper:
         Returns:
             List of dicts with 'episode' and 'id' keys.
         """
-        su.space()
+
         response: Optional[requests.Response] = None
         soup: Optional[BeautifulSoup] = None
 
         try:
-            self.logger.debug(f"Scraping Anime info from {self.url1}")
+            self.logger.debug(f"Scraping Anime episodes from {self.url1}")
             response = requests.get(self.url1, headers=self.headers)
             response.raise_for_status()
             self.logger.debug(f"Response: {response.status_code}")
@@ -71,6 +69,7 @@ class AnimeHeavenScraper:
         # Extract and sanitize anime title for use as folder name
         title_tag = soup.find("meta", property="og:title")
         raw_name = str(title_tag["content"]) if title_tag else "Unknown"
+        self.logger.info(f"Anime title: {raw_name}")
         clean = re.sub(r'[^\w\s-]', '', raw_name)
         clean = re.sub(r'[\s-]+', '-', clean).strip('-')
         self.folder_name = clean
@@ -113,7 +112,7 @@ class AnimeHeavenScraper:
         Returns:
             Direct video source URL.
         """
-        su.space()
+
         # AnimeHeaven uses the episode ID as a cookie to gate video access
         cookies = {"key": episode_id}
 
@@ -153,4 +152,3 @@ class AnimeHeavenScraper:
 
         video_url = str(source["src"])
         return video_url
-

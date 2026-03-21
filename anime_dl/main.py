@@ -4,6 +4,7 @@
 
 import logging
 import sys
+import shutil
 from typing import Optional, Dict, List, cast
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -37,31 +38,35 @@ class AnimeDownloader:
             project_root: Root path for saving downloads.
             logger: Logger instance.
         """
-        episode_number = ep["episode"]
-        episode_id = ep["id"]
+        try:
+            episode_number = ep["episode"]
+            episode_id = ep["id"]
 
-        # Fetch video URL with retry in case of network hiccups
-        video_url = cast(str, retry(
-            lambda: scraper.fetch_video_url(episode_id),
-            retries=3,
-            delay=2,
-            logger=logger
-        ))
-        downloader = VideoDownloader(video_url, logger=logger)
+            # Fetch video URL with retry in case of network hiccups
+            video_url = cast(str, retry(
+                lambda: scraper.fetch_video_url(episode_id),
+                retries=10,
+                delay=2,
+                logger=logger
+            ))
+            downloader = VideoDownloader(video_url, logger=logger)
 
-        assert scraper.folder_name
-        folder_name = Path(scraper.folder_name)
-        folder = handler.ensure_writable_path(
-            project_root / "anime_downloads" / folder_name
-        )
+            assert scraper.folder_name
+            folder_name = Path(scraper.folder_name)
+            folder = handler.ensure_writable_path(
+                project_root / "anime_downloads" / folder_name
+            )
 
-        filepath = f"episode_{episode_number}.mp4"
+            filepath = f"episode_{episode_number}.mp4"
 
-        # Download with retry in case of network hiccups
-        retry(
-            lambda: downloader.download_video(folder, filepath),
-            logger=logger
-        )
+            retry(
+                lambda: downloader.download_video(folder, filepath),
+                retries=10,
+                logger=logger
+            )
+
+        except Exception as e:
+            raise e
 
     @classmethod
     def run(cls) -> None:
@@ -115,6 +120,7 @@ class AnimeDownloader:
 
                 episodes = retry(
                     lambda: scraper.scrape_episodes(),
+                    retries=10,
                     logger=logger
                 )
                 assert episodes
@@ -137,21 +143,40 @@ class AnimeDownloader:
 
                 project_root = handler.get_parent_path(levels_up=1)
 
-                with ThreadPoolExecutor(max_workers=num_workers) as executor:
-                    executor.map(
-                        partial(
-                            AnimeDownloader.process_episode,
+                if not shutil.which("aria2c"):
+                    su.space()
+                    logger.warning(
+                        "aria2c not found. Downloads will be sequential."
+                    )
+
+                    for ep in episodes:
+                        AnimeDownloader.process_episode(
+                            ep,
                             scraper=scraper,
                             handler=handler,
                             project_root=project_root,
                             logger=logger
-                        ),
-                        episodes
-                    )
+                        )
+
+                else:
+                    with ThreadPoolExecutor(
+                        max_workers=num_workers
+                    ) as executor:
+                        executor.map(
+                            partial(
+                                AnimeDownloader.process_episode,
+                                scraper=scraper,
+                                handler=handler,
+                                project_root=project_root,
+                                logger=logger
+                            ),
+                            episodes
+                        )
 
         except KeyboardInterrupt:
             su.space()
             logger.info("Process interrupted by user")
+            sys.exit(1)
 
         except Exception as e:
             logger.error(f"An error occurred: {e}")

@@ -1,4 +1,8 @@
+
+
+
 requests
 beautifulsoup4
+tqdm
 lxml
 git+https://github.com/Haashiraaa/haashi-analytics-toolkit.git
