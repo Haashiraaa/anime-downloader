@@ -44,22 +44,22 @@ python3 -m anime_dl --url "https://animeheaven.me/anime.php?9rp26"
 
 ```bash
 # Download all episodes
-python3 -m anime_dl --url "url"
+python3 -m anime_dl --urls "url"
 
 # Download multiple anime at once
-python3 -m anime_dl --url "url1" "url2" "url3"
+python3 -m anime_dl --urls "url1" "url2" "url3"
 
 # Download 3 newest episodes
-python3 -m anime_dl --url "..." --limit 3
+python3 -m anime_dl --urls "..." --limit 3
 
 # Download 3 oldest episodes
-python3 -m anime_dl --url "..." --limit 3 --oldest
+python3 -m anime_dl --urls "..." --limit 3 --oldest
 
 # Download episode 5 only
-python3 -m anime_dl --url "..." --episode 5
+python3 -m anime_dl --urls "..." --episode 5
 
 # Enable debug output
-python3 -m anime_dl --url "..." --debug
+python3 -m anime_dl --urls "..." --debug
 ```
 
 ---
