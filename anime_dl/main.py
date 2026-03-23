@@ -74,6 +74,7 @@ class AnimeDownloader:
         args = parse_args()
         cls.main(
             urls=args.urls,
+            num_workers=args.workers,
             limit=args.limit,
             newest_first=not args.oldest,
             episode=args.episode,
@@ -83,7 +84,7 @@ class AnimeDownloader:
     @staticmethod
     def main(
         urls: List[str],
-        num_workers: int = 5,
+        num_workers: int,
         limit: Optional[int] = None,
         newest_first: bool = True,  # default: download newest first
         episode: Optional[int] = None,

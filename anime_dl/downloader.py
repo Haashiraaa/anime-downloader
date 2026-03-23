@@ -37,9 +37,20 @@ class VideoDownloader:
         self, directory: PathLike, filename: PathLike
     ) -> None:
         """Download using aria2c with 16 connections for speed."""
-        subprocess.run(
-            ["aria2c", "-x", "16", "-s", "16",
-             "-d", directory, "-o", filename, self.url],
+        subprocess.run([
+            "aria2c",
+            "-x",
+            "16",
+            "-s",
+            "16",
+            "--referer", "https://animeheaven.me/",
+            "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+            "-d",
+            directory,
+            "-o",
+            filename,
+            self.url
+        ],
             check=True
         )
 

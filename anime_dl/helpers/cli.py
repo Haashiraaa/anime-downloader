@@ -7,10 +7,31 @@ import argparse
 ArgLike = argparse.Namespace
 
 
+def check_workers(value: str) -> int:
+    try:
+        ivalue = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            "n_workers must be a integer."
+        )
+    if ivalue <= 0:
+        raise argparse.ArgumentTypeError(
+            "n_workers must be a positive integer."
+        )
+    return ivalue
+
+
 def parse_args() -> ArgLike:
     """Parse CLI arguments for the anime downloader."""
 
     parser = argparse.ArgumentParser(description="Download anime episodes")
+
+    parser.add_argument(
+        '--workers',
+        type=check_workers,
+        default=3,
+        help='Number of concurrent workers'
+    )
 
     parser.add_argument(
         "--urls",
@@ -48,4 +69,3 @@ def parse_args() -> ArgLike:
     )
 
     return parser.parse_args()
-
