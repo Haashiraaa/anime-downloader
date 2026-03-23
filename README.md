@@ -38,6 +38,7 @@ python3 -m anime_dl --urls "https://animeheaven.me/anime.php?9rp26"
 | `--limit N` | Download only N episodes |
 | `--oldest` | Download oldest episodes first (default is newest) |
 | `--episode N` | Download a specific episode by number |
+| `--workers N` | Number of concurrent download workers (default: 3) |
 | `-d, --debug` | Enable debug logging |
 
 ### Examples
@@ -95,7 +96,7 @@ Downloads are saved to `anime_downloads/` in the project root, organized by anim
 
 - aria2c is used for downloads when available, with a requests fallback if not installed
 - When aria2c is not installed, downloads run sequentially with a progress bar
-- When aria2c is installed, downloads run in parallel using a thread pool (default 5 workers)
+- When aria2c is installed, downloads run in parallel using a thread pool (default 3 workers, configurable with --workers)
 - Failed network calls are retried up to 10 times with exponential backoff
 - Partial downloads are resumed automatically on retry rather than restarting from scratch
 - Anime titles are sanitized before being used as folder names to ensure cross-platform compatibility
