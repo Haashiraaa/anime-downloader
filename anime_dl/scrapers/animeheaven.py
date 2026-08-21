@@ -2,20 +2,22 @@
 
 # anime_dl/scrapers/animeheaven.py
 
-import requests
 import logging
-import sys
 import re
+import sys
+from typing import Any
+
+import requests
 from bs4 import BeautifulSoup
-from typing import List, Dict, Any, Optional
 from haashi.utility import Logger
+
 from anime_dl import headers
 
 
 class AnimeHeavenScraper:
     """Scraper for AnimeHeaven anime pages."""
 
-    def __init__(self, url: str, logger: Optional[Logger] = None) -> None:
+    def __init__(self, url: str, logger: Logger | None = None) -> None:
         """
         Args:
             url: Anime page URL.
@@ -28,11 +30,11 @@ class AnimeHeavenScraper:
         self.logger = logger or Logger(logging.INFO)
 
         self.headers = headers
-        self.episodes: List[Dict[str, Any]] = []
-        self.folder_name: Optional[str] = None
+        self.episodes: list[dict[str, Any]] = []
+        self.folder_name: str | None = None
         self.name: str = "AnimeHeaven"
 
-    def scrape_episodes(self) -> List[Dict[str, Any]]:
+    def scrape_episodes(self) -> list[dict[str, Any]]:
         """
         Scrape episode IDs and numbers from the anime page.
 
@@ -40,8 +42,8 @@ class AnimeHeavenScraper:
             List of dicts with 'episode' and 'id' keys.
         """
 
-        response: Optional[requests.Response] = None
-        soup: Optional[BeautifulSoup] = None
+        response: requests.Response | None = None
+        soup: BeautifulSoup | None = None
 
         try:
             self.logger.debug(f"Scraping Anime episodes from {self.url1}")
@@ -116,8 +118,8 @@ class AnimeHeavenScraper:
         # AnimeHeaven uses the episode ID as a cookie to gate video access
         cookies = {"key": episode_id}
 
-        response: Optional[requests.Response] = None
-        soup: Optional[BeautifulSoup] = None
+        response: requests.Response | None = None
+        soup: BeautifulSoup | None = None
 
         try:
             self.logger.debug(f"Fetching episode page: {episode_id}")

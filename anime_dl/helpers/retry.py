@@ -1,8 +1,11 @@
 # anime_dl/helpers/retry.py
 
 import time
-from typing import Callable, Optional, Any
-from haashi.utility import Logger, ScreenUtil as su
+from collections.abc import Callable
+from typing import Any
+
+from haashi.utility import Logger
+from haashi.utility import ScreenUtil as su
 
 
 def retry(
@@ -10,8 +13,8 @@ def retry(
     retries: int = 3,
     delay: float = 2,
     backoff: int = 2,
-    logger: Optional[Logger] = None
-) -> Optional[Any]:
+    logger: Logger | None = None
+) -> Any | None:
     """
     Retry a callable on failure with exponential backoff.
 

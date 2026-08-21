@@ -2,13 +2,15 @@
 
 # anime_dl/downloader.py
 
-import requests
-import subprocess
 import logging
-from typing import Optional, Union
-from haashi.utility import Logger, FileHandler
+import subprocess
 from pathlib import Path
+from typing import Union
+
+import requests
+from haashi.utility import FileHandler, Logger
 from tqdm import tqdm
+
 from anime_dl import headers
 
 PathLike = Union[str, Path]
@@ -20,8 +22,8 @@ class VideoDownloader:
     def __init__(
         self,
         url: str,
-        logger: Optional[Logger] = None,
-        handler: Optional[FileHandler] = None,
+        logger: Logger | None = None,
+        handler: FileHandler | None = None,
     ) -> None:
         """
         Args:
@@ -83,13 +85,11 @@ class VideoDownloader:
                 unit_divisor=1024,
                 desc=str(filename),
                 leave=True
-            ) as bar:
-
-                with open(filepath, mode) as f:
-                    for chunk in r.iter_content(chunk_size=1024 * 1024):
-                        if chunk:
-                            f.write(chunk)
-                            bar.update(len(chunk))
+            ) as bar, open(filepath, mode) as f:
+                for chunk in r.iter_content(chunk_size=1024 * 1024):
+                    if chunk:
+                        f.write(chunk)
+                        bar.update(len(chunk))
 
     def download_video(
         self, directory: PathLike, filename: PathLike

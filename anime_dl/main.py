@@ -3,17 +3,20 @@
 # anime_dl/main.py
 
 import logging
-import sys
 import shutil
-from typing import Optional, Dict, List, cast
+import sys
 from concurrent.futures import ThreadPoolExecutor
-from pathlib import Path
-from anime_dl.scrapers.animeheaven import AnimeHeavenScraper
-from anime_dl.downloader import VideoDownloader
-from haashi.utility import Logger, FileHandler, ScreenUtil as su
 from functools import partial
-from anime_dl.helpers.retry import retry
+from pathlib import Path
+from typing import cast
+
+from haashi.utility import FileHandler, Logger
+from haashi.utility import ScreenUtil as su
+
+from anime_dl.downloader import VideoDownloader
 from anime_dl.helpers.cli import parse_args
+from anime_dl.helpers.retry import retry
+from anime_dl.scrapers.animeheaven import AnimeHeavenScraper
 
 
 class AnimeDownloader:
@@ -21,7 +24,7 @@ class AnimeDownloader:
 
     @staticmethod
     def process_episode(
-        ep: Dict[str, str],
+        ep: dict[str, str],
         scraper: AnimeHeavenScraper,
         handler: FileHandler,
         project_root: Path,
@@ -83,13 +86,13 @@ class AnimeDownloader:
 
     @staticmethod
     def main(
-        urls: List[str],
+        urls: list[str],
         num_workers: int,
-        limit: Optional[int] = None,
+        limit: int | None = None,
         newest_first: bool = True,  # default: download newest first
-        episode: Optional[int] = None,
+        episode: int | None = None,
         debug: bool = False,
-        logger: Optional[Logger] = None
+        logger: Logger | None = None
     ) -> None:
         """
         Main download pipeline.

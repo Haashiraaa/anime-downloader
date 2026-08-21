@@ -4,7 +4,7 @@
 
 from typing import Dict
 
-headers: Dict[str, str] = {
+headers: dict[str, str] = {
     "User-Agent": "Mozilla/5.0",
     "Referer": "https://animeheaven.me/"
 }

@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anime-dl"
+version = "0.1.0"
+description = "Command-line tool for downloading anime episodes in one click"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Haashiraaa" }]
+
+dependencies = [
+    "requests",
+    "beautifulsoup4",
+    "lxml",
+    "tqdm",
+    "haashi",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pyright",
+    "autopep8",
+    "pytest",
+    "pytest-cov",
+    "build",
+
+]
+
+[project.scripts]
+anime-dl = "anime_dl.main:AnimeDownloader.run"
+
+[tool.setuptools.packages.find]
+include = ["anime_dl*"]
+exclude = ["anime_dl.__pycache__*", "anime_dl.logs*", "*.__pycache__*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

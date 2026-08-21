@@ -1,5 +1,5 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
+pycache/
 *.py[cod]
 *$py.class
 
@@ -19,7 +19,6 @@ Thumbs.db
 # Logs and temp files
 *.log
 *.tmp
-logs/
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
@@ -34,5 +33,8 @@ dist/
 *.db
 *.env
 
-# Downloaded files
-anime_downloads/
+# Diff files
+*.diff
+
+# Commit files
+*[cC][oO][mM][mM][iI][tT]*
