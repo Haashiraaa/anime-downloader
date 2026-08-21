@@ -1,19 +1,20 @@
-# anime_dl/helpers/retry.py
+# src/helpers/retry.py
 
 import time
 from collections.abc import Callable
 from typing import Any
 
-from haashi.utility import Logger
-from haashi.utility import ScreenUtil as su
+from haashi.utility import Logger, ScreenUtil
+
+from src.exceptions.errors import AnimeDownloaderError
 
 
 def retry(
     func: Callable[[], Any],
+    logger: Logger,
     retries: int = 3,
     delay: float = 2,
     backoff: int = 2,
-    logger: Logger | None = None
 ) -> Any | None:
     """
     Retry a callable on failure with exponential backoff.
@@ -23,7 +24,7 @@ def retry(
         retries: Max number of attempts.
         delay: Initial wait time in seconds.
         backoff: Multiplier applied to delay after each failure.
-        logger: Optional logger for warnings.
+        logger: logger for warnings.
 
     Returns:
         Return value of func on success.
@@ -34,16 +35,16 @@ def retry(
     for attempt in range(1, retries + 1):
         try:
             return func()
-        except Exception as e:
+        except AnimeDownloaderError as exc:
+
             if attempt == retries:
                 raise
             # Exponential backoff: 2s, 4s, 8s...
             sleep_time = delay * (backoff ** (attempt - 1))
-            su.space()
-            if logger:
-                logger.warning(
-                    f"Attempt {attempt}/{retries} failed: {e}. "
-                    f"Retrying in {sleep_time}s..."
-                )
-            time.sleep(sleep_time)
+            ScreenUtil.space()
 
+            logger.warning(
+                f"Attempt {attempt}/{retries} failed: {exc}. "
+                f"Retrying in {sleep_time}s..."
+            )
+            time.sleep(sleep_time)

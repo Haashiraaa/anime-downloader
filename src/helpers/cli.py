@@ -1,6 +1,6 @@
 
 
-# anime_dl/helpers/cli.py
+# src/helpers/cli.py
 
 import argparse
 
@@ -21,7 +21,7 @@ def check_workers(value: str) -> int:
     return ivalue
 
 
-def parse_args() -> ArgLike:
+def parse_args() -> argparse.Namespace:
     """Parse CLI arguments for the anime downloader."""
 
     parser = argparse.ArgumentParser(description="Download anime episodes")

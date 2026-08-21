@@ -1,0 +1,2 @@
+
+# src/scrapers/base.py

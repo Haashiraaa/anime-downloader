@@ -1,8 +1,8 @@
 
 
-# anime_dl/scrapers/animeheaven.py
+# src/scrapers/animeheaven.py
 
-import logging
+
 import re
 import sys
 from typing import Any
@@ -11,43 +11,30 @@ import requests
 from bs4 import BeautifulSoup
 from haashi.utility import Logger
 
-from anime_dl import headers
-
 
 class AnimeHeavenScraper:
     """Scraper for AnimeHeaven anime pages."""
 
-    def __init__(self, url: str, logger: Logger | None = None) -> None:
-        """
-        Args:
-            url: Anime page URL.
-            logger: Optional logger instance.
-        """
-        self.url1 = url
-        self.url2 = "https://animeheaven.me/gate.php"
-        self.url3 = "https://animeheaven.me/"
+    BASE_URL = "https://animeheaven.me/"
+    GATE_URL = "https://animeheaven.me/gate.php"
 
-        self.logger = logger or Logger(logging.INFO)
+    def __init__(self, logger: Logger) -> None:
 
-        self.headers = headers
-        self.episodes: list[dict[str, Any]] = []
+        self.logger = logger
+        self.headers: dict[str, str] = {
+            "User-Agent": "Mozilla/5.0",
+            "Referer": "https://animeheaven.me/"
+        }
         self.folder_name: str | None = None
         self.name: str = "AnimeHeaven"
 
-    def scrape_episodes(self) -> list[dict[str, Any]]:
-        """
-        Scrape episode IDs and numbers from the anime page.
-
-        Returns:
-            List of dicts with 'episode' and 'id' keys.
-        """
+    def get_page_res(self, page_url: str) -> requests.Response | None:
 
         response: requests.Response | None = None
-        soup: BeautifulSoup | None = None
 
         try:
-            self.logger.debug(f"Scraping Anime episodes from {self.url1}")
-            response = requests.get(self.url1, headers=self.headers)
+            self.logger.debug(f"Scraping Anime episodes from {page_url}")
+            response = requests.get(page_url, headers=self.headers)
             response.raise_for_status()
             self.logger.debug(f"Response: {response.status_code}")
 
@@ -57,16 +44,18 @@ class AnimeHeavenScraper:
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Failed to fetch anime page: {e}")
 
-        try:
-            self.logger.debug("Parsing HTML...")
-            assert response
-            soup = BeautifulSoup(response.text, 'lxml')
+        return response
 
-        except Exception as e:
-            self.logger.error(f"Failed to parse HTML: {e}")
+        # todo: handle exceptions for response and parsing
 
-        if soup is None:
-            raise Exception("Failed to parse HTML")
+    def parse_page_res(self, response: requests.Response | None) -> tuple[list[dict[str, Any]], str | None]:
+
+        folder_name: str | None = None
+        episodes: list[dict[str, Any]] = []
+
+        self.logger.debug("Parsing HTML...")
+        assert response
+        soup = BeautifulSoup(response.text, 'lxml')
 
         # Extract and sanitize anime title for use as folder name
         title_tag = soup.find("meta", property="og:title")
@@ -74,7 +63,7 @@ class AnimeHeavenScraper:
         self.logger.info(f"Anime title: {raw_name}")
         clean = re.sub(r'[^\w\s-]', '', raw_name)
         clean = re.sub(r'[\s-]+', '-', clean).strip('-')
-        self.folder_name = clean
+        folder_name = clean
 
         episode_tags = soup.find_all('a', href='gate.php', id=True)
         if not episode_tags:
@@ -90,41 +79,31 @@ class AnimeHeavenScraper:
                 if episode_num_tag else "Unknown"
             )
 
-            self.episodes.append({
-                "episode": episode_number,
-                "id": episode_id
-            })
-
             self.logger.debug(
                 f"Episode #{episode_number} found: {episode_id}"
             )
 
+            episodes.append({
+                "episode": episode_number,
+                "id": episode_id
+            })
+
         self.logger.info("Extraction complete!")
-        self.logger.info(f"Found {len(self.episodes)} episodes")
+        self.logger.info(f"Found {len(episodes)} episodes")
 
-        return self.episodes
+        return episodes, folder_name
 
-    def fetch_video_url(self, episode_id: str) -> str:
-        """
-        Fetch the direct video URL for a given episode.
-
-        Args:
-            episode_id: The episode ID used as a cookie key.
-
-        Returns:
-            Direct video source URL.
-        """
+    def get_video(self, episode_id: str) -> requests.Response | None:
 
         # AnimeHeaven uses the episode ID as a cookie to gate video access
         cookies = {"key": episode_id}
 
         response: requests.Response | None = None
-        soup: BeautifulSoup | None = None
 
         try:
             self.logger.debug(f"Fetching episode page: {episode_id}")
             response = requests.get(
-                self.url2, headers=self.headers, cookies=cookies)
+                self.GATE_URL, headers=self.headers, cookies=cookies)
             response.raise_for_status()
             self.logger.debug(f"Response: {response.status_code}")
 
@@ -134,17 +113,17 @@ class AnimeHeavenScraper:
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Failed to fetch episode page: {e}")
 
-        try:
-            self.logger.debug("Parsing HTML...")
-            assert response
-            soup = BeautifulSoup(response.text, 'lxml')
+        return response
 
-        except Exception as e:
-            self.logger.error(f"Failed to parse HTML: {e}")
+    def parse_video(self, response: requests.Response | None) -> str | None:
 
-        if soup is None:
-            raise Exception("Failed to parse HTML")
+        video_url: str | None = None
 
+        self.logger.debug("Parsing HTML...")
+        assert response
+        soup = BeautifulSoup(response.text, 'lxml')
+
+        assert soup is not None
         video_tag = soup.find("video")
         source = video_tag.find("source") if video_tag else None
 

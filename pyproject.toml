@@ -34,8 +34,8 @@ dev = [
 anime-dl = "anime_dl.main:AnimeDownloader.run"
 
 [tool.setuptools.packages.find]
-include = ["anime_dl*"]
-exclude = ["anime_dl.__pycache__*", "anime_dl.logs*", "*.__pycache__*"]
+include = ["src*"]
+exclude = ["src.__pycache__*", "src.logs*", "*.__pycache__*"]
 
 [tool.ruff]
 line-length = 100

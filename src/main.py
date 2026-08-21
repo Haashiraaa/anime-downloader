@@ -1,6 +1,6 @@
 
 
-# anime_dl/main.py
+# src/main.py
 
 import logging
 import shutil
@@ -13,10 +13,10 @@ from typing import cast
 from haashi.utility import FileHandler, Logger
 from haashi.utility import ScreenUtil as su
 
-from anime_dl.downloader import VideoDownloader
-from anime_dl.helpers.cli import parse_args
-from anime_dl.helpers.retry import retry
-from anime_dl.scrapers.animeheaven import AnimeHeavenScraper
+from src.downloader import VideoDownloader
+from src.helpers.cli import parse_args
+from src.helpers.retry import retry
+from src.scrapers.animeheaven import AnimeHeavenScraper
 
 
 class AnimeDownloader:

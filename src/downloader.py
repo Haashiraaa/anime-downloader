@@ -1,6 +1,6 @@
 
 
-# anime_dl/downloader.py
+# src/downloader.py
 
 import logging
 import subprocess
@@ -11,7 +11,7 @@ import requests
 from haashi.utility import FileHandler, Logger
 from tqdm import tqdm
 
-from anime_dl import headers
+from src import headers
 
 PathLike = Union[str, Path]
 
