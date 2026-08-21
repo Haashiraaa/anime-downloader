@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from anime_dl.scrapers.animeheaven import AnimeHeavenScraper
 from anime_dl.downloader import VideoDownloader
-from haashi_pkg.utility import Logger, FileHandler, ScreenUtil as su
+from haashi.utility import Logger, FileHandler, ScreenUtil as su
 from functools import partial
 from anime_dl.helpers.retry import retry
 from anime_dl.helpers.cli import parse_args

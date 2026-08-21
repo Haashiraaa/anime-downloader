@@ -2,7 +2,7 @@
 
 import time
 from typing import Callable, Optional, Any
-from haashi_pkg.utility import Logger, ScreenUtil as su
+from haashi.utility import Logger, ScreenUtil as su
 
 
 def retry(

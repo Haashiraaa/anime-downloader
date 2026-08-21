@@ -6,7 +6,7 @@ import requests
 import subprocess
 import logging
 from typing import Optional, Union
-from haashi_pkg.utility import Logger, FileHandler
+from haashi.utility import Logger, FileHandler
 from pathlib import Path
 from tqdm import tqdm
 from anime_dl import headers

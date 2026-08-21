@@ -8,7 +8,7 @@ import sys
 import re
 from bs4 import BeautifulSoup
 from typing import List, Dict, Any, Optional
-from haashi_pkg.utility import Logger
+from haashi.utility import Logger
 from anime_dl import headers
 
 
