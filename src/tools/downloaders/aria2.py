@@ -1,0 +1,25 @@
+# src/tools/aria2.py
+
+import subprocess
+
+from .base import BaseDownloader, PathType
+
+
+class Aria2Downloader(BaseDownloader):
+    """Downloads via aria2c - 16 parallel connections."""
+
+    def download(self, url: str, directory: PathType, filename: PathType, headers: dict[str, str] | None = None) -> None:
+        subprocess.run(
+            [
+                "aria2c",
+                "-x", "16",
+                "-s", "16",
+                "--referer", "https://animeheaven.me/",
+                "--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+                "-d", str(directory),
+                "-o", str(filename),
+                url,
+            ],
+            check=True,
+        )
+        self.logger.debug("Downloaded with aria2c")
