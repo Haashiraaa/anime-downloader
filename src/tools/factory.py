@@ -1,6 +1,5 @@
 # src/tools/factory.py
 
-import shutil
 import subprocess
 
 from haashi.utility import FileHandler, Logger
@@ -17,13 +16,14 @@ def download_video(
     logger: Logger,
     handler: FileHandler,
     headers: dict[str, str],
+    parallel: bool,
 ) -> None:
     """
     Download url into directory/filename.
     Uses aria2c when available, falls back to requests if aria2c
     is missing or dies mid-download.
     """
-    if shutil.which("aria2c"):
+    if parallel:
         try:
             Aria2Downloader(logger, handler).download(
                 url, directory, filename, headers=headers)

@@ -1,6 +1,6 @@
 
 
-# src/tools/handlers.py
+# src/tools/handlers/episode.py
 
 import sys
 from pathlib import Path
@@ -42,6 +42,7 @@ def download_episode(
     logger: Logger,
     folder_name: str | Path,
     headers: dict[str, str],
+    parallel: bool,
 ) -> None:
     """
     Fetch the video URL for one episode and download it.
@@ -76,6 +77,7 @@ def download_episode(
         lambda: download_video(
             video_url, folder, filepath,
             logger=logger, handler=handler, headers=headers,
+            parallel=parallel,
         ),
         retries=10,
         logger=logger,

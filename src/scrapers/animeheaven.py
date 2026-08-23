@@ -62,7 +62,7 @@ class AnimeHeavenScraper:
 
     def parse_page_res(self, response: requests.Response | None) -> tuple[list[dict[str, Any]], Path | str]:
 
-        folder_name: str | None = None
+        folder_name: str = ""
         episodes: list[dict[str, Any]] = []
 
         self.logger.debug("Parsing HTML...")
@@ -75,7 +75,7 @@ class AnimeHeavenScraper:
         self.logger.info(f"Anime title: {raw_name}")
         clean = re.sub(r'[^\w\s-]', '', raw_name)
         clean = re.sub(r'[\s-]+', '-', clean).strip('-')
-        folder_name = clean
+        folder_name = clean or "Unknown"
 
         episode_tags = soup.find_all('a', href='gate.php', id=True)
         if not episode_tags:

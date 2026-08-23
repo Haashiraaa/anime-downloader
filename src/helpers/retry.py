@@ -15,7 +15,7 @@ def retry(
     retries: int = 3,
     delay: float = 2,
     backoff: int = 2,
-) -> Any | None:
+) -> Any:
     """
     Retry a callable on failure with exponential backoff.
 
