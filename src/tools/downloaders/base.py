@@ -16,6 +16,6 @@ class BaseDownloader(ABC):
         self.handler = handler
 
     @abstractmethod
-    def download(self, url: str, directory: PathType, filename: PathType, headers: dict[str, str] | None = None) -> None:
+    def download(self, url: str, directory: PathType, filename: PathType, headers: dict[str, str]) -> None:
         """Download url into directory/filename."""
         raise NotImplementedError

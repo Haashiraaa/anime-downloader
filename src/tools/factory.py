@@ -16,7 +16,7 @@ def download_video(
     filename: PathType,
     logger: Logger,
     handler: FileHandler,
-    headers: dict[str, str] | None = None,
+    headers: dict[str, str],
 ) -> None:
     """
     Download url into directory/filename.
@@ -26,7 +26,7 @@ def download_video(
     if shutil.which("aria2c"):
         try:
             Aria2Downloader(logger, handler).download(
-                url, directory, filename, headers=None)
+                url, directory, filename, headers=headers)
             logger.info("Download complete!")
             return
         except FileNotFoundError:

@@ -39,10 +39,9 @@ class RequestsDownloader(BaseDownloader):
         url: str,
         directory: PathType,
         filename: PathType,
-        headers: dict[str, str] | None = None,
+        headers: dict[str, str],
     ) -> None:
 
-        assert headers is not None
         filepath, mode, required_headers = self._resolve_file(
             url, directory, filename, headers
         )

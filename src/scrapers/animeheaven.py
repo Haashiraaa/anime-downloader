@@ -5,6 +5,7 @@
 
 import re
 import sys
+from pathlib import Path
 from typing import Any
 
 import requests
@@ -25,8 +26,19 @@ class AnimeHeavenScraper:
             "User-Agent": "Mozilla/5.0",
             "Referer": "https://animeheaven.me/"
         }
-        self.folder_name: str | None = None
+
         self.name: str = "AnimeHeaven"
+
+    def scrape_episodes(self, url: str) -> tuple[list[dict[str, Any]], Path | str]:
+        """Fetch and parse the anime page in one call. Returns (episodes, folder_name)."""
+        response = self.get_page_res(url)
+        episodes, folder_name = self.parse_page_res(response)
+        return episodes, folder_name
+
+    def fetch_video_url(self, episode_id: str) -> str | None:
+        """Fetch and parse the gate page in one call."""
+        response = self.get_video(episode_id)
+        return self.parse_video(response)
 
     def get_page_res(self, page_url: str) -> requests.Response | None:
 
@@ -48,7 +60,7 @@ class AnimeHeavenScraper:
 
         # todo: handle exceptions for response and parsing
 
-    def parse_page_res(self, response: requests.Response | None) -> tuple[list[dict[str, Any]], str | None]:
+    def parse_page_res(self, response: requests.Response | None) -> tuple[list[dict[str, Any]], Path | str]:
 
         folder_name: str | None = None
         episodes: list[dict[str, Any]] = []
