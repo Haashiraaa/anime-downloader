@@ -1,4 +1,4 @@
-# src/tools/aria2.py
+# src/tools/downloaders/aria2.py
 
 import subprocess
 
@@ -20,6 +20,12 @@ class Aria2Downloader(BaseDownloader):
                 "aria2c",
                 "-x", "16",
                 "-s", "16",
+                # actually resume a partial file instead of assuming its presence means "done"
+                "-c",
+                # required alongside -c so aria2c is willing to touch an existing file at all
+                "--allow-overwrite=true",
+                # don't spawn "episode_5 (1).mp4" duplicates on retry
+                "--auto-file-renaming=false",
                 "--referer", referer,
                 "--user-agent", user_agent,
                 "-d", str(directory),
