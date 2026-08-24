@@ -3,8 +3,8 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "anime-dl"
-version = "0.1.0"
+name = "anime-downloader"
+version = "0.2.0"
 description = "Command-line tool for downloading anime episodes in one click"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -32,7 +32,7 @@ dev = [
 
 
 [project.scripts]
-anime-dl = "src.main:main"
+anime = "src.main:main"
 
 [tool.setuptools.packages.find]
 include = ["src*"]

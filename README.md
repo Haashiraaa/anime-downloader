@@ -1,4 +1,5 @@
-# anime-dl
+
+# anime-downloader
 
 A command-line tool for downloading anime episodes from AnimeHeaven. Supports parallel downloads, retry logic, and flexible episode filtering.
 
@@ -7,27 +8,35 @@ A command-line tool for downloading anime episodes from AnimeHeaven. Supports pa
 ## Requirements
 
 - Python 3.10+
-- aria2c (optional but recommended for faster downloads)
-- Dependencies listed in `requirements.txt`
+- aria2c (optional but recommended for faster, parallel downloads — a per-OS install hint is printed if it's missing)
+- Dependencies are managed via `pyproject.toml`
 
 ---
 
 ## Installation
 
-Clone the repository and install dependencies:
+Clone the repository and install in editable mode:
 
 ```bash
 git clone https://github.com/Haashiraaa/anime-downloader
 cd anime-downloader
-pip install -r requirements.txt
+pip install -e .
 ```
+
+This installs the `anime` console script and pulls in all dependencies automatically.
 
 ---
 
 ## Usage
 
 ```bash
-python3 -m anime_dl --urls "https://animeheaven.me/anime.php?9rp26"
+anime --urls "https://animeheaven.me/anime.php?9rp26"
+```
+
+Alternatively, without installing the console script:
+
+```bash
+python3 -m app --urls "https://animeheaven.me/anime.php?9rp26"
 ```
 
 ### Options
@@ -45,22 +54,22 @@ python3 -m anime_dl --urls "https://animeheaven.me/anime.php?9rp26"
 
 ```bash
 # Download all episodes
-python3 -m anime_dl --urls "url"
+anime --urls "url"
 
 # Download multiple anime at once
-python3 -m anime_dl --urls "url1" "url2" "url3"
+anime --urls "url1" "url2" "url3"
 
 # Download 3 newest episodes
-python3 -m anime_dl --urls "..." --limit 3
+anime --urls "..." --limit 3
 
 # Download 3 oldest episodes
-python3 -m anime_dl --urls "..." --limit 3 --oldest
+anime --urls "..." --limit 3 --oldest
 
 # Download episode 5 only
-python3 -m anime_dl --urls "..." --episode 5
+anime --urls "..." --episode 5
 
 # Enable debug output
-python3 -m anime_dl --urls "..." --debug
+anime --urls "..." --debug
 ```
 
 ---
@@ -68,17 +77,30 @@ python3 -m anime_dl --urls "..." --debug
 ## Project Structure
 
 ```
-anime_dl/
-    main.py             # AnimeDownloader class — orchestrates the pipeline
-    downloader.py       # VideoDownloader — handles aria2c and requests downloads
-    scrapers/
-        animeheaven.py  # AnimeHeavenScraper — scrapes episodes and video URLs
+app/
+    __main__.py           # Entry point — `python3 -m app`
+src/
+    main.py                # main() — parses args, runs the download pipeline
     helpers/
-        cli.py          # Argument parsing
-        retry.py        # Retry logic with exponential backoff
+        cli.py              # Argument parsing
+        retry.py            # Retry logic with exponential backoff
+        hint.py              # OS-aware aria2c install hint
+    scrapers/
+        animeheaven.py      # AnimeHeavenScraper — scrapes episodes and video URLs
+    tools/
+        factory.py          # Picks aria2c or requests, with fallback on failure
+        downloaders/
+            base.py           # BaseDownloader ABC
+            aria2.py          # Aria2Downloader — parallel, 16 connections
+            req.py            # RequestsDownloader — chunked streaming, resume-capable
+        handlers/
+            downloads.py      # run_downloads / download_anime / download_factory
+            episode.py        # filter_episodes / download_episode
+    exceptions/
+        errors.py            # Base exception type
 ```
 
-Downloads are saved to `anime_downloads/` in the project root, organized by anime title.
+Downloads are saved to `Downloads/` at the project root, organized by anime title.
 
 ---
 
@@ -88,15 +110,17 @@ Downloads are saved to `anime_downloads/` in the project root, organized by anim
 - `beautifulsoup4` — HTML parsing
 - `lxml` — HTML parser backend
 - `tqdm` — download progress bars
-- `haashi-pkg` — Custom utility library (logger, file handler, screen utilities)
+- `haashi` — utility library (logger, file handler, screen utilities)
+
+Dev dependencies (`pip install -e ".[dev]"`): `ruff`, `pyright`, `autopep8`, `pytest`, `pytest-cov`, `build`.
 
 ---
 
 ## Notes
 
-- aria2c is used for downloads when available, with a requests fallback if not installed
-- When aria2c is not installed, downloads run sequentially with a progress bar
-- When aria2c is installed, downloads run in parallel using a thread pool (default 3 workers, configurable with --workers)
+- aria2c is used for downloads when available, with a requests fallback if it's missing or fails mid-download
+- If aria2c isn't installed, downloads run sequentially with a progress bar, and an OS-specific install hint (apt/pacman/dnf/brew/winget/choco) is printed
+- If aria2c is installed, downloads run in parallel using a thread pool (default 3 workers, configurable with `--workers`)
 - Failed network calls are retried up to 10 times with exponential backoff
-- Partial downloads are resumed automatically on retry rather than restarting from scratch
+- Partial downloads (via the requests fallback) are resumed automatically on retry rather than restarting from scratch
 - Anime titles are sanitized before being used as folder names to ensure cross-platform compatibility
