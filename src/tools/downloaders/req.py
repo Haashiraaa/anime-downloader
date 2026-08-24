@@ -1,4 +1,4 @@
-# src/tools/downloaders/requests_dl.py
+# src/tools/downloaders/req.py
 
 from pathlib import Path
 
@@ -17,7 +17,7 @@ class RequestsDownloader(BaseDownloader):
         directory: PathType,
         filename: PathType,
         headers: dict[str, str]
-    ) -> tuple[PathType, str, dict[str, str]]:
+    ) -> tuple[PathType, int, dict[str, str]]:
         filepath = Path(directory) / filename
         filepath = self.handler.ensure_writable_path(filepath)
 
@@ -30,9 +30,7 @@ class RequestsDownloader(BaseDownloader):
                 f"Resuming from {existing_size / (1024 * 1024):.1f}MB"
             )
 
-        mode = "ab" if existing_size else "wb"
-
-        return filepath, mode, required_headers
+        return filepath, existing_size, required_headers
 
     def download(
         self,
@@ -42,16 +40,33 @@ class RequestsDownloader(BaseDownloader):
         headers: dict[str, str],
     ) -> None:
 
-        filepath, mode, required_headers = self._resolve_file(
+        filepath, existing_size, required_headers = self._resolve_file(
             url, directory, filename, headers
         )
 
         with requests.get(url, stream=True, headers=required_headers) as res:
             res.raise_for_status()
-            total = int(res.headers.get("content-length", 0))
+
+            resumed = existing_size > 0 and res.status_code == 206
+            if existing_size > 0 and not resumed:
+                # We asked the server to resume via Range, but it ignored us and sent
+                # the whole file back with a 200. Appending now would duplicate/corrupt
+                # the file, so start over clean instead.
+                self.logger.debug(
+                    "Server ignored Range request - restarting download from scratch"
+                )
+                existing_size = 0
+
+            mode = "ab" if resumed else "wb"
+
+            content_length = int(res.headers.get("content-length", 0))
+            # content-length on a 206 response is only the *remaining* bytes -
+            # add back what's already on disk to get the true expected total.
+            total = existing_size + content_length if resumed else content_length
 
             with tqdm(
                 total=total,
+                initial=existing_size if resumed else 0,
                 unit="B",
                 unit_scale=True,
                 unit_divisor=1024,
@@ -62,5 +77,15 @@ class RequestsDownloader(BaseDownloader):
                     if chunk:
                         f.write(chunk)
                         bar.update(len(chunk))
+
+        # Verify what actually landed on disk before calling it a success -
+        # a silently truncated or duplicated file must not pass as complete.
+        filepath = Path(filepath)
+        final_size = filepath.stat().st_size
+        if total and final_size != total:
+            filepath.unlink(missing_ok=True)
+            raise requests.exceptions.RequestException(
+                f"Incomplete download: expected {total} bytes, got {final_size} bytes"
+            )
 
         self.logger.debug("Downloaded with requests")
