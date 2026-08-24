@@ -30,10 +30,10 @@ def main() -> None:
         Logger(logging.INFO).info("Program interrupted by user/admin.")
         sys.exit(1)
 
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 — top-level CLI boundary, must catch everything to log + exit cleanly
         su.space()
         Logger(logging.INFO).error(
-            f"An error occurred: {exc}", save_to_json=True)
+            f"An error occurred: {exc}", exception=exc, save_to_json=True)
         sys.exit(1)
 
 
