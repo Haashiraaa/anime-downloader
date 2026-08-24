@@ -57,7 +57,7 @@ def download_factory(
         return
 
     with ThreadPoolExecutor(max_workers=num_workers) as executor:
-        executor.map(
+        list(executor.map(
             partial(
                 download_episode,
                 scraper=scraper,
@@ -66,9 +66,10 @@ def download_factory(
                 logger=logger,
                 folder_name=folder_name,
                 headers=scraper.headers,
+                parallel=parallel,
             ),
             episodes,
-        )
+        ))
 
 
 def download_anime(
@@ -99,8 +100,11 @@ def download_anime(
 
     episodes = filter_episodes(episodes, episode, limit, newest_first, logger)
 
-    project_root = handler.get_parent_path(levels_up=1)
+    project_root = handler.get_ancestor_by_name("anime-downloader")
 
+    assert project_root is not None
+    # todo: handle case where project_root is None
+    # either fallback to going back one level or fail
     download_factory(
         episodes=episodes,
         scraper=scraper,

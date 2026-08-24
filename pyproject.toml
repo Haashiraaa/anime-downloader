@@ -30,8 +30,9 @@ dev = [
 
 ]
 
+
 [project.scripts]
-anime-dl = "anime_dl.main:AnimeDownloader.run"
+anime-dl = "src.main:main"
 
 [tool.setuptools.packages.find]
 include = ["src*"]

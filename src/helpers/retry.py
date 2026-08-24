@@ -6,8 +6,6 @@ from typing import Any
 
 from haashi.utility import Logger, ScreenUtil
 
-from src.exceptions.errors import AnimeDownloaderError
-
 
 def retry(
     func: Callable[[], Any],
@@ -35,7 +33,7 @@ def retry(
     for attempt in range(1, retries + 1):
         try:
             return func()
-        except AnimeDownloaderError as exc:
+        except Exception as exc:
 
             if attempt == retries:
                 raise

@@ -68,7 +68,7 @@ def download_episode(
     assert folder_name
     folder_name = Path(folder_name)
     folder = handler.ensure_writable_path(
-        project_root / "anime_downloads" / folder_name
+        project_root / "Downloads" / folder_name
     )
 
     filepath = f"episode_{episode_number}.mp4"

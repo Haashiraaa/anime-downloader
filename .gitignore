@@ -38,3 +38,9 @@ dist/
 
 # Commit files
 *[cC][oO][mM][mM][iI][tT]*
+
+# Downloaded files
+Downloads/
+
+# Logs
+logs/
